@@ -10,58 +10,82 @@
     html, body {
       height:100%; overflow:hidden;
       display:flex; align-items:center; justify-content:center;
-      /* heart-pattern background via embedded SVG */
+      /* heart-pattern background via embedded SVG or file */
       background-color:#ffe6f2;
       background-image: <img src="assets/images/pink-heart-seamless-pattern-background-vector.jpg" alt="Heart decoration" />
       background-repeat: repeat;
     }
 
+    /* RIBBON */
+    .ribbon {
+      position: fixed;
+      top: -150px; left: -200px;
+      width: 400px; height: 150px;
+      background:
+        linear-gradient(120deg,
+          rgba(255,215,0,0.8) 0%,
+          rgba(255,235,140,0.8) 50%,
+          rgba(255,215,0,0.8) 100%),
+        url("assets/images/sparkle.png");
+      background-size: 30% 100%, 40px 40px;
+      background-repeat: no-repeat, repeat;
+      transform: rotate(30deg);
+      animation:
+        snake 18s ease-in-out infinite,
+        glitter 0.6s steps(5) infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+    @keyframes snake {
+      0%   { transform: translate(-200px, -150px) rotate(20deg); }
+      25%  { transform: translate(110vw, 20vh) rotate(25deg); }
+      50%  { transform: translate(-200px, 50vh) rotate(15deg); }
+      75%  { transform: translate(110vw, 80vh) rotate(30deg); }
+      100% { transform: translate(-200px, -150px) rotate(20deg); }
+    }
+    @keyframes glitter {
+      from { background-position: 0 0, 0 0; }
+      to   { background-position: 0 0, 40px 40px; }
+    }
+
     /* container that masks the scrolling text */
     .letter-container {
       position: relative;
-      width: 90vw;
-      max-width: 1200px;
-      height: 80vh;
-      overflow: hidden;
+      width: 90vw; max-width: 1200px;
+      height: 80vh; overflow: hidden;
       border: 4px solid #ffb3d9;
-      border-radius: 12px;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-radius: 12px; padding: 30px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
 
     /* the actual text block, absolutely positioned */
     .letter {
       position: absolute;
-      width: 100%;
-      bottom: -100%;
+      width: 100%; bottom: -100%;
       line-height: 1.8;
       font-family: 'Georgia', serif;
-      font-size: 1.2rem;
-      color: #333;
+      font-size: 1.2rem; color: #333;
       animation: scrollUp 45s linear infinite;
     }
-
     @keyframes scrollUp {
       0%   { bottom: -100%; }
       100% { bottom: 100%; }
     }
-
-    /* paragraph spacing */
     .letter p {
       margin-bottom: 1.4em;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
     }
 
     /* controls styling */
     .controls {
-      position: absolute;
-      top: 12px; right: 12px;
+      position: absolute; top: 12px; right: 12px;
       display: flex; gap: 10px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255,255,255,0.9);
       border-radius: 6px; padding: 8px 12px;
       font-family: sans-serif; font-size: 0.9rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 5;
     }
     .controls button {
       background: #ff6699; border:none; padding:6px 10px;
@@ -71,26 +95,22 @@
     .controls input[type="range"] {
       width: 100px;
     }
-
-    /* pause on hover */
     .letter-container:hover .letter {
       animation-play-state: paused;
     }
   </style>
 </head>
 <body>
+
+  <!-- Sparkly ribbon -->
+  <div class="ribbon"></div>
+
   <div class="letter-container">
     <div class="controls">
       <button id="playPause">⏸️</button>
       <label>
         Speed
-        <input
-          type="range"
-          id="speedSlider"
-          min="10"
-          max="120"
-          value="45"
-        />s
+        <input type="range" id="speedSlider" min="10" max="120" value="45" />s
       </label>
     </div>
     <div class="letter" id="letter">
@@ -106,24 +126,21 @@
   </div>
 
   <script>
-    const letterEl = document.getElementById('letter');
-    const slider  = document.getElementById('speedSlider');
-    const btn     = document.getElementById('playPause');
+    const letterEl = document.getElementById('letter'),
+          slider  = document.getElementById('speedSlider'),
+          btn     = document.getElementById('playPause');
     let playing = true;
 
-    // adjust scroll duration when slider moves
     slider.addEventListener('input', () => {
       letterEl.style.animationDuration = slider.value + 's';
     });
 
-    // toggle play/pause
     btn.addEventListener('click', () => {
       playing = !playing;
       letterEl.style.animationPlayState = playing ? 'running' : 'paused';
       btn.textContent = playing ? '⏸️' : '▶️';
     });
 
-    // ensure hover-pause only when playing
     document.querySelector('.letter-container')
       .addEventListener('mouseleave', () => {
         if (playing) letterEl.style.animationPlayState = 'running';
