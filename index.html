@@ -1,108 +1,133 @@
----
-layout: none
-title: "My Scrolling Love Letter"
-# Scroll duration in seconds:
-scroll_duration: 30
-# Your letter: one array item = one paragraph
-letter:
-  - "My Dearest Love,"
-  - "Every moment away from you feels like an eternity..."
-  - "Your laughter is my favorite melody, your smile my brightest dawn."
-  - "Through every challenge and every triumph, my heart is yours alone."
-  - "I treasure the way you light up even my darkest days..."
-  - # …add as many lines as you like…
-  - "Forever and always,"
-  - "Your Name"
----
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ page.title }}</title>
+  <title>My Scrolling Love Letter</title>
   <style>
+    /* Reset & full-screen flex centering */
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
       height:100%; overflow:hidden;
-      background:#fff0f5; color:#333;
-      font-family:'Georgia', serif;
       display:flex; align-items:center; justify-content:center;
+      /* heart-pattern background via embedded SVG */
+      background-color:#ffe6f2;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ctext x='50' y='62' font-size='48' text-anchor='middle' fill='%23ff99cc' font-family='Arial'%3E%26%231004%3B%3C/text%3E%3C/svg%3E");
+      background-repeat: repeat;
     }
+
+    /* container that masks the scrolling text */
     .letter-container {
-      position:relative; width:70%; height:80%; overflow:hidden;
-      border:2px solid #f8c8dc; border-radius:8px;
-      padding:20px; background:rgba(255,255,255,0.8);
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+      width: 90vw;
+      max-width: 1200px;
+      height: 80vh;
+      overflow: hidden;
+      border: 4px solid #ffb3d9;
+      border-radius: 12px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }
+
+    /* the actual text block, absolutely positioned */
     .letter {
-      position:absolute; width:100%; bottom:-100%;
-      line-height:1.6;
-      animation: scrollUp {{ page.scroll_duration }}s linear infinite;
+      position: absolute;
+      width: 100%;
+      bottom: -100%;
+      line-height: 1.8;
+      font-family: 'Georgia', serif;
+      font-size: 1.2rem;
+      color: #333;
+      animation: scrollUp 45s linear infinite;
     }
+
     @keyframes scrollUp {
       0%   { bottom: -100%; }
       100% { bottom: 100%; }
     }
-    .letter p { margin-bottom:1.2em; }
+
+    /* paragraph spacing */
+    .letter p {
+      margin-bottom: 1.4em;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    /* controls styling */
     .controls {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(255,255,255,0.9); padding:8px;
-      border-radius:4px; display: flex; gap: 8px;
+      position: absolute;
+      top: 12px; right: 12px;
+      display: flex; gap: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 6px; padding: 8px 12px;
+      font-family: sans-serif; font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .controls button {
+      background: #ff6699; border:none; padding:6px 10px;
+      border-radius:4px; color:#fff; cursor:pointer;
+    }
+    .controls button:hover { background: #ff4d88; }
+    .controls input[type="range"] {
+      width: 100px;
+    }
+
+    /* pause on hover */
+    .letter-container:hover .letter {
+      animation-play-state: paused;
     }
   </style>
 </head>
 <body>
-
   <div class="letter-container">
     <div class="controls">
       <button id="playPause">⏸️</button>
       <label>
-        Speed:
-        <input type="range" id="speedSlider"
-               min="5" max="120"
-               value="{{ page.scroll_duration }}">
+        Speed
+        <input
+          type="range"
+          id="speedSlider"
+          min="10"
+          max="120"
+          value="45"
+        />s
       </label>
     </div>
     <div class="letter" id="letter">
-      {% for line in page.letter %}
-        <p>{{ line }}</p>
-      {% endfor %}
+      <p>My Dearest Love,</p>
+      <p>Every moment away from you feels like an eternity...</p>
+      <p>Your laughter is my favorite melody, your smile my brightest dawn.</p>
+      <p>Through every challenge and every triumph, my heart is yours alone.</p>
+      <p>I treasure the way you light up even my darkest days...</p>
+      <!-- …add as many lines as you like… -->
+      <p>Forever and always,</p>
+      <p>Your Name</p>
     </div>
   </div>
 
   <script>
     const letterEl = document.getElementById('letter');
-    const slider = document.getElementById('speedSlider');
-    const btn = document.getElementById('playPause');
+    const slider  = document.getElementById('speedSlider');
+    const btn     = document.getElementById('playPause');
     let playing = true;
 
-    // Update animation duration when slider moves
+    // adjust scroll duration when slider moves
     slider.addEventListener('input', () => {
-      const sec = slider.value;
-      letterEl.style.animationDuration = sec + 's';
+      letterEl.style.animationDuration = slider.value + 's';
     });
 
-    // Toggle play/pause
+    // toggle play/pause
     btn.addEventListener('click', () => {
-      if (playing) {
-        letterEl.style.animationPlayState = 'paused';
-        btn.textContent = '▶️';
-      } else {
-        letterEl.style.animationPlayState = 'running';
-        btn.textContent = '⏸️';
-      }
       playing = !playing;
+      letterEl.style.animationPlayState = playing ? 'running' : 'paused';
+      btn.textContent = playing ? '⏸️' : '▶️';
     });
 
-    // Pause on hover, resume on leave
-    letterEl.parentElement.addEventListener('mouseenter', () => {
-      letterEl.style.animationPlayState = 'paused';
-    });
-    letterEl.parentElement.addEventListener('mouseleave', () => {
-      if (playing) letterEl.style.animationPlayState = 'running';
-    });
+    // ensure hover-pause only when playing
+    document.querySelector('.letter-container')
+      .addEventListener('mouseleave', () => {
+        if (playing) letterEl.style.animationPlayState = 'running';
+      });
   </script>
-
 </body>
 </html>
